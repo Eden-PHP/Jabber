@@ -152,13 +152,13 @@ class Base extends Event
      /**
      * Connects to the remote server
      *
-     * @param string hist
+     * @param string host
      * @param int port
      * @param string username
      * @param string password
      * @param boolean usesSsl
      * @param boolean uses tls
-     * @return Eden\Jabber\Base
+     * @return void
      */
     public function __construct(
         $host,
@@ -331,6 +331,8 @@ class Base extends Event
      */
     public function probe($to)
     {
+        Argument::i()->test(1, 'string');
+
         return $this->setPresence($to, null, self::PRESENCE_TYPE_PROBE);
     }
 
@@ -342,6 +344,8 @@ class Base extends Event
      */
     public function send($xml)
     {
+        Argument::i()->test(1, 'string');
+
         //if not connected
         if (!$this->connection) {
             //throw exception
@@ -368,6 +372,10 @@ class Base extends Event
      */
     public function setAway($to = null, $message = null)
     {
+        Argument::i()
+            ->test(1, 'string', 'null')
+            ->test(2, 'string', 'null');
+
         return $this->setPresence($to, $message, null, self::PRESENCE_AWAY);
     }
 
@@ -380,6 +388,10 @@ class Base extends Event
      */
     public function setDND($to = null, $message = null)
     {
+        Argument::i()
+            ->test(1, 'string', 'null')
+            ->test(2, 'string', 'null');
+
         return $this->setPresence($to, $message, null, self::PRESENCE_DND);
     }
 
@@ -392,6 +404,10 @@ class Base extends Event
      */
     public function setOffline($to = null, $message = null)
     {
+        Argument::i()
+            ->test(1, 'string', 'null')
+            ->test(2, 'string', 'null');
+
         return $this->setPresence($to, $message, null, self::PRESENCE_OFFLINE);
     }
 
@@ -404,6 +420,10 @@ class Base extends Event
      */
     public function setOnline($to = null, $message = null)
     {
+        Argument::i()
+            ->test(1, 'string', 'null')
+            ->test(2, 'string', 'null');
+
         return $this->setPresence($to, $message, null, self::PRESENCE_TYPE_AVAILABLE);
     }
 
@@ -532,6 +552,10 @@ class Base extends Event
      */
     public function setXA($to = null, $message = null)
     {
+        Argument::i()
+            ->test(1, 'string', 'null')
+            ->test(2, 'string', 'null');
+
         return $this->setPresence($to, $message, null, self::PRESENCE_XA);
     }
 
@@ -558,12 +582,14 @@ class Base extends Event
      *
      * @param string|array to
      * @param string message
-     * @param string type
-     * @param string presence title
      * @return Eden\Jabber\Base
      */
     public function subscribeTo($to = null, $message = null)
     {
+        Argument::i()
+            ->test(1, 'string', 'null')
+            ->test(2, 'string', 'null');
+
         $this->send(
             sprintf(
                 '<iq type="set" id="set1"><query xmlns='.
@@ -641,6 +667,8 @@ class Base extends Event
      */
     public function wait($timeout = 10)
     {
+        Argument::i()
+            ->test(1, 'int');
         //if not connected
         if (!$this->connection) {
             //throw exception
@@ -688,6 +716,9 @@ class Base extends Event
      */
     protected function authenticate($command, $xml)
     {
+        Argument::i()
+            ->test(1, 'string', 'null')
+            ->test(2, 'array');
         //response switch
         switch ($command) {
             case self::AUTH_TYPE_STREAM:
@@ -914,6 +945,8 @@ class Base extends Event
      */
     protected function encryptPass($data)
     {
+        Argument::i()
+            ->test(1, 'array');
         // let's me think about <challenge> again...
         foreach (array('realm', 'cnonce', 'digest-uri') as $key) {
             if (!isset($data[$key])) {
@@ -960,6 +993,9 @@ class Base extends Event
      */
     protected function getDepth($vals, &$i)
     {
+        Argument::i()
+            ->test(1, 'array')
+            ->test(2, 'int');
         $children = array();
 
         if (isset($vals[$i]['value'])) {
@@ -1013,6 +1049,9 @@ class Base extends Event
      */
     protected function implodeData($data)
     {
+        Argument::i()
+            ->test(1, 'array');
+
         $return = array();
         foreach ($data as $key => $value) {
             $return[] = $key . '="' . $value . '"';
@@ -1029,6 +1068,10 @@ class Base extends Event
      */
     protected function query($command, $xml)
     {
+        Argument::i()
+            ->test(1, 'string')
+            ->test(2, 'array');
+
         // multiple possibilities here
         switch ($command) {
             case self::QUERY_TYPE_BIND:
@@ -1133,6 +1176,9 @@ class Base extends Event
      */
     protected function parseData($data)
     {
+        Argument::i()
+            ->test(1, 'string');
+
         $data = explode(',', $data);
         $pairs = array();
         $key = false;
@@ -1163,6 +1209,11 @@ class Base extends Event
      */
     protected function parseXml($data, $skip_white = 1, $encoding = 'UTF-8')
     {
+        Argument::i()
+            ->test(1, 'string')
+            ->test(2, 'int', 'null')
+            ->test(3, 'string', 'null');
+
         $data = trim($data);
 
         //if the data does not start with an XML header
@@ -1204,6 +1255,9 @@ class Base extends Event
      */
     protected function response($xml)
     {
+        Argument::i()
+            ->test(1, 'array');
+
         //if the xml is not an array
         //or if it is empty
         if (!is_array($xml) || !sizeof($xml)) {
