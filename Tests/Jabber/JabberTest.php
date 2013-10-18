@@ -21,8 +21,64 @@ class Eden_Jaber_Tests_Jabber_JabberTest extends \PHPUnit_Framework_TestCase {
         $this->jabber->connect();
     }
 
-    public function testProbe() {
+    public function testOnline() {
         $this->jabber->setOnline();
-        print_r($this->jabber->getMeta());
+        $meta = $this->jabber->getMeta();
+
+        echo 'online';
+        sleep(3);
+        print_r($meta);
+    }
+
+    public function testProbe() {
+        $this->jabber->probe('aldrin234@wtfismyip.com');
+        $meta = $this->jabber->getMeta();
+
+        echo 'probe';
+        sleep(3);
+        print_r($meta);
+    }
+
+    public function testAway() {
+        $this->jabber->setAway();
+        $meta = $this->jabber->getMeta();
+
+        echo 'away';
+        sleep(3);
+        print_r($meta);
+    }
+
+    public function testTo() {
+        $this->jabber->to('aldrin234@wtfismyip.com', 'pangit ka forever', 'available');
+        $meta = $this->jabber->getMeta();
+
+        echo 'send message';
+        sleep(3);
+        print_r($meta);
+    }
+
+    public function testSetPresence() {
+        $this->jabber->setPresence('aldrin234@wtfismyip.com', 'online presence');
+        $meta = $this->jabber->getMeta();
+
+        echo 'setPresence';
+        sleep(3);
+        print_r($meta);
+
+        $this->jabber->setAway();
+        $meta = $this->jabber->getMeta();
+
+        echo 'away';
+        sleep(3);
+        print_r($meta);
+    }
+
+    public function testOffline() {
+        $this->jabber->setOffline();
+        $meta = $this->jabber->getMeta();
+
+        echo 'offline';
+        sleep(3);
+        print_r($meta);
     }
 }

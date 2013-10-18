@@ -47,8 +47,10 @@ class Base extends Event
     const PRESENCE_AWAY = 'away';
     const PRESENCE_DND = 'dnd';
     const PRESENCE_XA = 'xa';
+    const PRESENCE_CHAT = 'chat';
 
     const PRESENCE_TYPE_PROBE = 'probe';
+    const PRESENCE_TYPE_AVAILABLE = 'available';
     const PRESENCE_TYPE_UNAVAILABLE = 'unavailable';
     const PRESENCE_TYPE_ERROR = 'error';
     const PRESENCE_TYPE_SUBSCRIBE = 'subscribe';
@@ -69,7 +71,7 @@ class Base extends Event
     const AUTH_PROCEED = 4;
     const AUTH_SUCCESS = 5;
 
-    const AUTH_TYPE_STREAM  = 'stream:stream';
+    const AUTH_TYPE_STREAM = 'stream:stream';
     const AUTH_TYPE_FEATURES = 'stream:features';
     const AUTH_TYPE_CHALLENGE = 'challenge';
     const AUTH_TYPE_FAILURE = 'failure';
@@ -108,6 +110,7 @@ class Base extends Event
 
     protected static $presences = array(
         self::PRESENCE_ONLINE,
+        self::PRESENCE_CHAT,
         self::PRESENCE_OFFLINE,
         self::PRESENCE_DND,
         self::PRESENCE_AWAY,
@@ -146,6 +149,17 @@ class Base extends Event
         self::QUERY_TYPE_ROSTER,
         self::QUERY_TYPE_PUSH);
 
+     /**
+     * Connects to the remote server
+     *
+     * @param string hist
+     * @param int port
+     * @param string username
+     * @param string password
+     * @param boolean usesSsl
+     * @param boolean uses tls
+     * @return Eden\Jabber\Base
+     */
     public function __construct(
         $host,
         $port,
@@ -297,17 +311,17 @@ class Base extends Event
     public function getMeta()
     {
         return array(
-            'host'          => $this->host,
-            'port'          => $this->port,
-            'user'          => $this->user,
-            'ssl'           => $this->ssl,
-            'tls'           => $this->tls,
-            'negotiation'   => $this->negotiation,
-            'connection'    => $this->connection,
-            'jabberId'      => $this->jabberId,
-            'streamId'      => $this->streamId,
-            'presence'      => $this->presence,
-            'session'       => $this->session);
+            'host' => $this->host,
+            'port' => $this->port,
+            'user' => $this->user,
+            'ssl' => $this->ssl,
+            'tls' => $this->tls,
+            'negotiation' => $this->negotiation,
+            'connection' => $this->connection,
+            'jabberId' => $this->jabberId,
+            'streamId' => $this->streamId,
+            'presence' => $this->presence,
+            'session' => $this->session);
     }
 
     /**
@@ -390,7 +404,7 @@ class Base extends Event
      */
     public function setOnline($to = null, $message = null)
     {
-        return $this->setPresence($to, $message, null, self::PRESENCE_ONLINE);
+        return $this->setPresence($to, $message, null, self::PRESENCE_TYPE_AVAILABLE);
     }
 
     /**
@@ -425,6 +439,9 @@ class Base extends Event
         $show = in_array($show, self::$presences) ? '<show>'. $show .'</show>'
             : null;
 
+        if($show == self::PRESENCE_ONLINE)
+            $show = null;
+
         //fix type
         $type = in_array($type, self::$presenceTypes) ? ' type="'.$type.'"'
             : null;
@@ -449,7 +466,6 @@ class Base extends Event
         }
 
         if (is_null($to)) {
-            echo sprintf($template, $to);
             $this->send(sprintf($template, ''));
             return $this;
         }
@@ -570,7 +586,7 @@ class Base extends Event
      */
     public function to($to, $text, $subject = null, $thread = null)
     {
-        Exception::i()
+        Argument::i()
             ->test(1, 'string')
             ->test(2, 'string')
             ->test(3, 'string', 'null')
@@ -799,11 +815,11 @@ class Base extends Event
                     }
 
                     $response = array(
-                        'username'  => $this->user,
-                        'response'  => $this->encryptPass(array_merge($decoded, array('nc' => '00000001'))),
-                        'charset'   => 'utf-8',
-                        'nc'        => '00000001',
-                        'qop'       => 'auth');         // only auth being supported
+                        'username' => $this->user,
+                        'response' => $this->encryptPass(array_merge($decoded, array('nc' => '00000001'))),
+                        'charset' => 'utf-8',
+                        'nc' => '00000001',
+                        'qop' => 'auth');// only auth being supported
 
                     foreach (array('nonce', 'digest-uri', 'realm', 'cnonce') as $key) {
                         if (isset($decoded[$key])) {
@@ -908,15 +924,32 @@ class Base extends Event
         $pack = md5($this->user . ':' . $data['realm'] . ':' . $this->pass);
 
         if (isset($data['authzid'])) {
-            $a1 = pack('H32', $pack)  . sprintf(':%s:%s:%s', $data['nonce'], $data['cnonce'], $data['authzid']);
+            $a1 = pack('H32', $pack) .
+                sprintf(
+                    ':%s:%s:%s',
+                    $data['nonce'],
+                    $data['cnonce'],
+                    $data['authzid']
+                );
         } else {
-            $a1 = pack('H32', $pack)  . sprintf(':%s:%s', $data['nonce'], $data['cnonce']);
+            $a1 = pack('H32', $pack).
+                sprintf(':%s:%s', $data['nonce'], $data['cnonce']);
         }
 
         // should be: qop = auth
         $a2 = 'AUTHENTICATE:'. $data['digest-uri'];
 
-        return md5(sprintf('%s:%s:%s:%s:%s:%s', md5($a1), $data['nonce'], $data['nc'], $data['cnonce'], $data['qop'], md5($a2)));
+        return md5(
+            sprintf(
+                '%s:%s:%s:%s:%s:%s',
+                md5($a1),
+                $data['nonce'],
+                $data['nc'],
+                $data['cnonce'],
+                $data['qop'],
+                md5($a2)
+            )
+        );
     }
 
     /**
@@ -954,7 +987,8 @@ class Base extends Event
                 case 'complete':
                     $tagname = $vals[$i]['tag'];
                     $size = (isset($children[$tagname])) ? sizeof($children[$tagname]) : 0;
-                    $children[$tagname][$size]['#'] = (isset($vals[$i]['value'])) ? $vals[$i]['value'] : array();
+                    $children[$tagname][$size]['#'] = (isset($vals[$i]['value']))
+                        ? $vals[$i]['value'] : array();
 
                     if (isset($vals[$i]['attributes'])) {
                         $children[$tagname][$size]['@'] = $vals[$i]['attributes'];
@@ -1217,9 +1251,9 @@ class Base extends Event
                 return $this;
             }
 
-            $from   = $xml['message'][0]['@']['from'];
-            $to     = $xml['message'][0]['@']['to'];
-            $body   = $xml['message'][0]['#']['body'][0]['#'];
+            $from = $xml['message'][0]['@']['from'];
+            $to = $xml['message'][0]['@']['to'];
+            $body = $xml['message'][0]['#']['body'][0]['#'];
             //sometimes the message received is that they are just fishing for who
             //will respond we should notify them of our presence
             //we will let whomever deal with this

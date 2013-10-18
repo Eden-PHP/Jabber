@@ -25,12 +25,12 @@ use Eden\Core\Argument as CoreArgument;
  */
 class Argument extends CoreArgument
 {
-	const CONNECTION_FAILED 	= 'Connection to %s on port %s failed';
-	const NO_FEATURES			= 'Error: No feature information from server available';
-	const NOT_CONNECTED			= 'Not connected';
-	const NO_JID				= 'No jid given.';
-	const NO_AUTH_METHOD		= 'No authentication method supported';
-	const NO_SASL				= 'Server does not offer SASL authentication';
-	const SERVER_FAILED			= 'Server sent a failiure message';
-	const TLS_CHANGE_FAILED		= 'TLS mode change failed';
+	const CONNECTION_FAILED = 'Connection to %s on port %s failed';
+	const NO_FEATURES = 'Error: No feature information from server available';
+	const NOT_CONNECTED = 'Not connected';
+	const NO_JID = 'No jid given.';
+	const NO_AUTH_METHOD = 'No authentication method supported';
+	const NO_SASL = 'Server does not offer SASL authentication';
+	const SERVER_FAILED = 'Server sent a failiure message';
+	const TLS_CHANGE_FAILED = 'TLS mode change failed';
 }

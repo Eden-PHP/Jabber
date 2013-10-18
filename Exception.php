@@ -28,6 +28,7 @@ class Exception extends CoreException
     const NO_SASL = 'Server does not offer SASL authentication';
     const SERVER_FAILED = 'Server sent a failiure message';
     const TLS_CHANGE_FAILED = 'TLS mode change failed';
+
     public static function i($message = null, $code = 0)
     {
         $class = __CLASS__;
