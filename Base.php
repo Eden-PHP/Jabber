@@ -185,7 +185,6 @@ class Base extends Event
         $this->ssl = $ssl && $this->canUseSSL();
         $this->tls = $tls && $this->canUseTLS();
 
-
         if (strpos($user, '@') !== false) {
             list($this->user, $this->domain) = explode('@', $user);
         }
@@ -206,7 +205,7 @@ class Base extends Event
      */
     public function connect($timeout = 10)
     {
-        Argument::i()->test(1, 'int');
+        Argument::i()->test(1, 'int', 'null');
 
         //if already connected
         if ($this->connection) {
@@ -327,6 +326,7 @@ class Base extends Event
     /**
      * Check to see who is online
      *
+     * @param to string
      * @return Eden\Jabber\Base
      */
     public function probe($to)
@@ -373,7 +373,7 @@ class Base extends Event
     public function setAway($to = null, $message = null)
     {
         Argument::i()
-            ->test(1, 'string', 'null')
+            ->test(1, 'string', 'array', 'null')
             ->test(2, 'string', 'null');
 
         return $this->setPresence($to, $message, null, self::PRESENCE_AWAY);
@@ -389,7 +389,7 @@ class Base extends Event
     public function setDND($to = null, $message = null)
     {
         Argument::i()
-            ->test(1, 'string', 'null')
+            ->test(1, 'string', 'array', 'null')
             ->test(2, 'string', 'null');
 
         return $this->setPresence($to, $message, null, self::PRESENCE_DND);
@@ -405,7 +405,7 @@ class Base extends Event
     public function setOffline($to = null, $message = null)
     {
         Argument::i()
-            ->test(1, 'string', 'null')
+            ->test(1, 'string', 'array', 'null')
             ->test(2, 'string', 'null');
 
         return $this->setPresence($to, $message, null, self::PRESENCE_OFFLINE);
@@ -421,7 +421,7 @@ class Base extends Event
     public function setOnline($to = null, $message = null)
     {
         Argument::i()
-            ->test(1, 'string', 'null')
+            ->test(1, 'string', 'array', 'null')
             ->test(2, 'string', 'null');
 
         return $this->setPresence($to, $message, null, self::PRESENCE_TYPE_AVAILABLE);
@@ -553,7 +553,7 @@ class Base extends Event
     public function setXA($to = null, $message = null)
     {
         Argument::i()
-            ->test(1, 'string', 'null')
+            ->test(1, 'string', 'array', 'null')
             ->test(2, 'string', 'null');
 
         return $this->setPresence($to, $message, null, self::PRESENCE_XA);
@@ -574,6 +574,7 @@ class Base extends Event
                 break;
             }
         }
+
         return $this->disconnect();
     }
 
@@ -587,7 +588,7 @@ class Base extends Event
     public function subscribeTo($to = null, $message = null)
     {
         Argument::i()
-            ->test(1, 'string', 'null')
+            ->test(1, 'string', 'array', 'null')
             ->test(2, 'string', 'null');
 
         $this->send(
@@ -663,6 +664,7 @@ class Base extends Event
     /**
      * Listens for imcoming data
      *
+     * @param int
      * @return string XML
      */
     public function wait($timeout = 10)
@@ -940,7 +942,7 @@ class Base extends Event
     /**
      * encrypt the password data
      *
-     * @param  string $data
+     * @param  array $data
      * @return string
      */
     protected function encryptPass($data)
